@@ -1,14 +1,14 @@
 # Networking Event Finder
 
-## Overview
+## Overview :
 
 Networking Event Finder is an AI-powered event discovery and intelligence system that automatically finds, filters, ranks, and summarizes high-quality networking events happening across Mumbai.
 
-The platform aggregates events from multiple sources, extracts key information, removes duplicates, evaluates relevance, and generates concise recommendations for students, professionals, founders, investors, and startup enthusiasts.
+The platform aggregates events from multiple sources, extracts key information, removes duplicates, evaluates relevance and generates concise recommendations for students, professionals, founders, investors and startup enthusiasts.
 
 ---
 
-## Problem Statement
+## Problem Statement :
 
 Finding valuable networking events is often a manual and time-consuming process. Event information is scattered across multiple websites, communities, and platforms, making it difficult to identify the most relevant opportunities.
 
@@ -24,7 +24,7 @@ This project automates the entire event discovery workflow.
 
 ---
 
-## Solution
+## Solution :
 
 The system continuously discovers networking events from multiple online sources and uses AI to generate curated recommendations.
 
@@ -40,7 +40,7 @@ The system continuously discovers networking events from multiple online sources
 
 ---
 
-## Key Features
+## Key Features :
 
 ### Automated Event Discovery
 
@@ -80,7 +80,7 @@ For every event, the system generates:
 
 ---
 
-## Workflow Architecture
+## Workflow Architecture :
 
 ```text
 Data Sources
@@ -109,7 +109,7 @@ Curated Event Report
 
 ---
 
-## Tech Stack
+## Tech Stack :
 
 | Category | Technology |
 |-----------|-----------|
@@ -119,11 +119,11 @@ Curated Event Report
 | AI Processing | OpenAI GPT |
 | Data Transformation | JavaScript |
 | Notifications | Gmail |
-| Data Storage | Google Sheets |
+
 
 ---
 
-## System Components
+## System Components :
 
 ### Event Search Layer
 
@@ -160,13 +160,13 @@ Creates a clean and readable report containing:
 
 ---
 
-## Example Output
+## Example Output :
 
 ### Top Recommendations
 
 #### Startup Networking Mixer
 
-**Why Attend**
+**Why Attend ?**
 
 - Strong founder presence
 - Startup ecosystem exposure
@@ -174,7 +174,7 @@ Creates a clean and readable report containing:
 
 #### Product & Growth Meetup
 
-**Why Attend**
+**Why Attend ?**
 
 - Product management discussions
 - Industry networking
@@ -182,7 +182,7 @@ Creates a clean and readable report containing:
 
 #### Entrepreneur Community Event
 
-**Why Attend**
+**Why Attend ?**
 
 - Founder networking
 - Business collaboration opportunities
@@ -190,7 +190,7 @@ Creates a clean and readable report containing:
 
 ---
 
-## Use Cases
+## Use Cases :
 
 ### Students
 
@@ -220,7 +220,7 @@ Creates a clean and readable report containing:
 
 ---
 
-## Benefits
+## Benefits :
 
 - Reduces manual event research effort
 - Improves event discovery efficiency
@@ -230,7 +230,7 @@ Creates a clean and readable report containing:
 
 ---
 
-## Future Enhancements
+## Future Enhancements :
 
 - Personalized event recommendations
 - WhatsApp notifications
