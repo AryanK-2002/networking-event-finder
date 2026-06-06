@@ -104,7 +104,7 @@ Event Ranking Engine
 Summary Generation
      │
      ▼
-Curated Event Report
+Curated Events Email
 ```
 
 ---
