@@ -116,7 +116,7 @@ Curated Events Email
 | Workflow Automation | n8n |
 | Search Engine | Serper API |
 | Web Crawling | Firecrawl |
-| AI Processing | OpenAI GPT |
+| AI Processing | Google Gemini |
 | Data Transformation | JavaScript |
 | Notifications | Gmail |
 
