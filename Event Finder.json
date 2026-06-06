@@ -1,0 +1,245 @@
+{
+  "name": "Event Finder",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                4
+              ],
+              "triggerAtHour": 19
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        -128
+      ],
+      "id": "bb0585e1-51a7-4a14-b45b-9ffd98835739",
+      "name": "Scheduler"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://google.serper.dev/search",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-KEY",
+              "value": "e90d8dae0922d33b6694e5c2d1e292979869e9ec"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n\"q\": \"Mumbai founder meetup June 2026 OR Mumbai startup networking June 2026 OR Mumbai entrepreneur meetup June 2026 OR Mumbai AI meetup June 2026 OR Mumbai business networking June 2026 OR Mumbai venture capital networking June 2026 OR Mumbai MBA networking event June 2026 OR Mumbai product management meetup June 2026 OR Mumbai startup pitch event June 2026\",\n\"gl\": \"in\",\n\"hl\": \"en\",\n\"num\": 100\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        224,
+        -128
+      ],
+      "id": "bad0d22a-9403-4639-bed2-45826593f94d",
+      "name": "Serper API"
+    },
+    {
+      "parameters": {
+        "jsCode": "return $json.organic.map(item => {\n  return {\n    json: {\n      title: item.title || \"\",\n      url: item.link || \"\",\n      snippet: item.snippet || \"\",\n      source: item.displayLink || \"\",\n      position: item.position || \"\"\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        -128
+      ],
+      "id": "be4a6102-2666-4f12-bcd7-b16d43e11dd8",
+      "name": "JavaScript Parser"
+    },
+    {
+      "parameters": {
+        "resource": "MapSearch",
+        "operation": "search",
+        "query": "Mumbai networking events this weekend Mumbai startup events this weekend Mumbai AI meetup Mumbai Mumbai founder meetup Mumbai Mumbai business networking Mumbai Mumbai MBA fair June 2026 Mumbai venture capital event Mumbai Mumbai product meetup Mumbai Mumbai startup pitch event Mumbai Mumbai entrepreneur meetup Mumbai",
+        "sources": [
+          "web",
+          "news"
+        ],
+        "limit": 50,
+        "requestOptions": {}
+      },
+      "type": "@mendable/n8n-nodes-firecrawl.firecrawl",
+      "typeVersion": 1,
+      "position": [
+        672,
+        -128
+      ],
+      "id": "374afd4d-35aa-4eca-b89b-8767a324e718",
+      "name": "Firecrawl Search",
+      "executeOnce": true,
+      "credentials": {
+        "firecrawlApi": {
+          "id": "Y4c4atBs7uZFIlaY",
+          "name": "Firecrawl account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Today's date is {{ $now }}.\n\nYou are a professional event research analyst.\n\nAnalyze the event search results below.\n\nRules:\n\n* Include only events in Mumbai or Mumbai Metropolitan Region.\n* Include only events happening after today.\n* Include only events happening within the next 7 days.\n* Reject any event dated before today.\n* Reject any event with an unclear or missing date.\n* Include only:\n\n  * Networking events\n  * Startup events\n  * Founder meetups\n  * AI events\n  * MBA fairs\n  * Education expos\n  * Professional business events\n  * VC and investor events\n\nExclude:\n\n* Past events\n* Events with missing dates\n* Concerts\n* Parties\n* Comedy shows\n* Religious events\n\nEvent Selection Rules:\n\n- Always return exactly 5 events if 5 valid events exist.\n- Minimum networking score: 6/10.\n- If more than 5 valid events exist, choose the best 5.\n- Rank by:\n  1. Networking Score\n  2. Date\n  3. Quality of venue\nScoring Guidelines:\n\n* 10/10 = Major conference, large founder/startup gathering, strong networking potential.\n* 8-9/10 = High-quality networking event with relevant audience.\n* 6-7/10 = Useful niche networking opportunity.\n* Below 6/10 = Exclude.\nOUTPUT FORMATTING RULES\n\n* The final output must look like a premium business newsletter.\n* Use clean, professional HTML.\n* Use proper spacing between sections.\n* Use headings, tables, and summary sections exactly as instructed.\n* Do not output markdown.\n* Do not output plain text.\n* Output HTML only.\nCODE BLOCK RULES\n\n- Never wrap the output in markdown code blocks.\n- Never start with:\n  ```html\n- Never end with:\n\nDATE DISPLAY FORMAT\n\nAlways display dates as:\n\n* 6 June 2026\n* 7 June 2026\n* 12 June 2026\n\nNever display:\n\n* 2026-06-06\n* 06/06/2026\n* 6/6/2026\n\nTABLE FORMATTING RULES\n\n* Display exactly one event per row.\n\n* Display a maximum of 5 events.\n\n* Sort events by:\n\n  1. Networking Score\n  2. Event Quality\n  3. Date\n\n* Never leave blank cells.\n\n* If information is unavailable write:\n  Not Specified\n\nNETWORKING SCORE FORMAT\n\nDisplay scores only as:\n\n10/10\n9/10\n8/10\n7/10\n6/10\n\nDo not use decimals.\n\nCOST FORMAT\n\nDisplay cost as:\n\n- Free\n- ₹0\n- Free Registration\n\nIf cost is not clearly free, exclude the event.\n\nREGISTRATION LINK FORMAT\n\nAlways use:\n\n<a href=\"ACTUAL_URL\">Register</a>\n\nUse the exact URL from the source.\n\nNever use:\n\n* View Details\n* Learn More\n* Click Here\n\nNever display raw URLs.\n\nFEATURED EVENT FORMAT\n\nThe Featured Event of the Week section must contain:\n\n* Event Name\n* Date\n* Venue\n* Networking Score\n\nFollowed by a detailed 120-150 word professional recommendation written in paragraph format.\n\nDo not use bullet points in the recommendation.\n\nEVENT SNAPSHOT FORMAT\n\nAlways display:\n\n* Best Free Event\n* Best Founder Meetup\n* Best AI Event\n* Best Business Networking Event\n* Highest Networking Score\n\nIf unavailable display:\n\nN/A\n\nVENUE FORMAT\n\nPrefer:\n\n* Andheri East\n* Andheri West\n* Powai\n* BKC\n* Lower Parel\n* Bandra West\n* Bandra East\n* Goregaon\n* Vikhroli\n* Thane\n* Navi Mumbai\n\nAvoid:\n\n* Mumbai\n* Mumbai Region\n* Mumbai Metropolitan Region\n\nEMAIL QUALITY REQUIREMENT\n\nThe final output should look like a professionally curated weekly event digest sent by a business intelligence firm.\n\nReturn ONLY valid HTML.\n\nFormat exactly as:\n[One table row per event]\n<h2>Mumbai Networking Events Digest</h2>\n\n<p><strong>Generated on:</strong> [today's date]</p>\n\n<table border=\"1\" cellpadding=\"8\" cellspacing=\"0\" width=\"100%\">\n<tr>\n<th>Date</th>\n<th>Event</th>\n<th>Venue</th>\n<th>Cost</th>\n<th>Registration Link</th>\n<th>Networking Score</th>\n</tr>\n\n[One table row per event]\n\n</table>\n\n<h3>Top Recommendation</h3>\n\n<p>[Best event and why it is the strongest networking opportunity]</p>\n\n<h3>Quick Summary</h3>\n\n<ul>\n<li>Total Events Found: X</li>\n<li>Best Free Event: [Name]</li>\n<li>Best Founder/Startup Event: [Name]</li>\n<li>Best AI Event: [Name]</li>\n</ul>\n\nDo not write:\n\n* \"Based on the search results\"\n* \"Summary of excluded results\"\n* \"Assumptions\"\n* \"I analyzed\"\n* Any reasoning process\n\nOutput only clean HTML.\nDate Formatting Rules:\n\n- Format all dates as in this example format:\n  6 June 2026\n\n- Never use:\n  YYYY-MM-DD\n  MM/DD/YYYY\n  DD/MM/YYYY\n\n- Use human-readable & updated dates only.\n\nRegistration Link Rules:\n\n- Use the exact event URL found in the search results.\n- Never create placeholder links.\n- Never write:\n  View Details\n  Learn More\n  Register Here\n\n- Use the real registration URL.\n- Every event must contain a registration URL.\n- If the exact registration page is unavailable, use:\n  - Eventbrite event page\n  - Meetup event page\n  - Townscript event page\n  - Official event website\n\n- Never display:\n  Registration link unavailable.\n\n- Exclude events that do not have any usable registration URL.\n\n- In the Registration Link column, display:\n\n<a href=\"ACTUAL_URL\">Register</a>\n\nusing the exact URL from the source.\n\nSource Quality Rules:\n\n- Exclude Instagram links.\n- Exclude Facebook links.\n- Exclude X/Twitter links.\n- Prefer Eventbrite.\n- Prefer Townscript.\n- Prefer Meetup.\n- Prefer official event websites.\n- Prefer conference websites.\n\n\nVenue Rules:\n\n- Extract the actual locality whenever available.\n- Prefer:\n  Andheri\n  Powai\n  BKC\n  Lower Parel\n  Bandra\n  Goregaon\n  Vikhroli\n  Thane\n  Navi Mumbai\n\n- Do not write:\n  Mumbai\n  Mumbai Region\n  Mumbai Metropolitan Region\n\nIf exact venue is unavailable:\n\nUse the best available locality:\n\nExamples:\n- Andheri East\n- Bandra West\n- Powai\n- Lower Parel\n- Nariman Point\n- Thane\n- Navi Mumbai\n\nNever display:\n- Not Specified\n\nTABLE COMPLETION RULES\n\n- Always attempt to return 5 events.\n- If only 2-3 events perfectly satisfy all rules:\n  include the next best relevant events under ₹999.\n\n- Never return fewer than 5 events unless no relevant events exist.\n\n\nSMART EVENT SELECTION RULES\n\nPrimary Goal:\n\nReturn the 5 best networking opportunities available in Mumbai.\n\nLocation Rules:\n\n* Mumbai\n* Navi Mumbai\n* Thane\n* Mumbai Metropolitan Region\n\nDate Rules:\n\n* Prefer events occurring within the next 7 days.\n* If fewer than 5 events are found, expand to the next 14 days.\n* Exclude events that have already occurred.\n\nCost Rules:\n\nPriority 1:\n\n* Free Events\n* Free Registration\n\nPriority 2:\n\n* Events under ₹500\n\nPriority 3:\n\n* Events under ₹1000\n\nNever return an empty report simply because all events are not free.\n\nEvent Types:\n\n* Startup Events\n* Founder Meetups\n* Networking Events\n* AI Events\n* MBA Events\n* Education Expos\n* VC Events\n* Investor Events\n* Product Meetups\n* Entrepreneurship Events\n* Business Conferences\n* Career Events\n\nMinimum Quality Rules:\n\n* Networking Score must be 6/10 or higher.\n* Event date should be identifiable.\n* Registration source should be reasonably trustworthy.\n\nEvent Ranking Priority:\n\n1. Free Events\n2. Founder Meetups\n3. Startup Events\n4. AI Events\n5. Investor / VC Events\n6. MBA / Career Events\n7. Professional Networking Events\n\nFallback Rules:\n\nIf fewer than 5 events satisfy all criteria:\n\n* Expand search window to 14 days.\n* Allow events under ₹1000.\n* Allow verified Meetup, Eventbrite, Townscript, and official event websites.\n* Continue until 5 events are selected whenever possible.\n\nOutput Requirements:\n\n* Always attempt to return exactly 5 events.\n* Never return an empty table unless absolutely no relevant events exist.\n* If only 2-4 high-quality events exist, fill remaining slots with the next best relevant events.\n\nMORE FORMATTING RULES :\nFORMATTING RULES\n\n1. Greeting Section (at the very top)\n\n   * Keep the entire greeting in italics.\n   * Display it on 3 separate lines:\n\n   *Hey **Aryan**,*\n\n   *Excited to explore this weekend's networking opportunities?*\n\n   *Here are the events...*\n\n2. Main Heading\n\n   * Place immediately after the greeting.\n   * Write the heading in RED color and UNDERLINED:\n\n     <u>Mumbai Networking Events:</u>\n\n3. Events List (IMPORTANT)\n\n   * Place the Events List IMMEDIATELY BELOW the \"Mumbai Networking Events\" heading.\n\n   * DO NOT convert the events list into bullet points.\n\n   * ALWAYS present all events in a TABLE format.\n\n   * Preserve the existing table structure.\n\n   * Recommended columns:\n\n     | Event Name | Date & Time | Venue | Cost | Networking Score | Registration |\n     | ---------- | ----------- | ----- | ---- | ---------------- | ------------ |\n\n   * Keep event names bold wherever possible.\n\n   * Registration links should remain clickable.\n\n4. Top Recommendations Section\n\n   * Place this section AFTER the Events Table.\n\n   * Heading should be UNDERLINED:\n\n     <u>Top Recommendations:</u>\n\n   * Use BULLET POINTS ONLY.\n\n   * Do NOT write long paragraphs.\n\n   * Each recommendation should contain:\n     • Event Name (bold)\n     • Why it is recommended\n     • Type of people likely to attend\n     • Networking potential\n     • Key takeaway in 1–2 lines maximum\n\n5. Remove These Sections Completely\n\n   * Event Summary\n   * Quick Recommendations\n   * Final Recommendations\n\n6. Closing Line\n\n   * Add an italicized closing note at the very end:\n\n     *The best opportunities often come from conversations you never planned to have. Step out, meet new people, and make the most of Mumbai's networking scene this weekend!*\n\n7. General Formatting Rules\n\n   * Greeting → Heading → Events Table → Top Recommendations → Closing Line\n   * Never place Top Recommendations before the Events Table.\n   * Maintain the Events Table structure at all times.\n   * Avoid long paragraphs.\n   * Use bullet points for recommendations only.\n   * Use bold text for event names and important highlights.\n   * Keep the layout clean, professional, mobile-friendly, and easy to scan.\n   * Maintain proper spacing between all sections.\n\nADDITIONAL FORMATTING RULES\n\n1. Greeting Section (IMPORTANT)\n\n   * Do NOT write the greeting on a single line.\n   * Each sentence must appear on a separate line.\n   * Use HTML bold tags instead of Markdown asterisks for the name, as Markdown may render the asterisks literally.\n\n   Example:\n\n   <i><b>Hey Aryan,</b></i>\n\n   <i>Excited to explore this weekend's networking opportunities?</i>\n\n   <i>Here are the events...</i>\n\n   * Leave one blank line between each greeting line.\n   * Never display **Aryan** with visible asterisks.\n\n2. Event Table Rules\n\n   * If the venue is not available from the source:\n     • Do NOT write \"Mumbai\".\n     • Do NOT assume the venue.\n     • Instead use:\n     \"Venue Not Available\"\n     or\n     \"Location Not Disclosed\"\n\n   Examples:\n\n   ✓ Venue Not Available\n\n   ✓ Location Not Disclosed\n\n   ✗ Mumbai\n\n3. Closing Section\n\n   * Split the closing message into separate lines.\n   * Do NOT display the entire closing note as one long sentence.\n\n   Example:\n\n   <i>The best opportunities often come from conversations you never planned to have.</i>\n\n   <i>Step out, meet new people, and make the most of Mumbai's networking scene this weekend!</i>\n\n   * Leave one blank line between the two closing sentences.\n\n4. Final Layout Structure\n\n   Greeting Line 1\n\n   [Blank Line]\n\n   Greeting Line 2\n\n   [Blank Line]\n\n   Greeting Line 3\n\n   [Blank Line]\n\n   Mumbai Networking Events Heading\n\n   [Events Table]\n\n   Top Recommendations\n\n   [Blank Line]\n\n   Closing Line 1\n\n   [Blank Line]\n\n   Closing Line 2\n\n5. Rendering Preference\n\n   * Prefer HTML tags for formatting: <b>Bold</b> <i>Italic</i> <u>Underline</u>\n\n   * Avoid Markdown (**text**) when rendering names inside italic text, as some platforms display the asterisks literally.\n\nMORE FORMATTING RULES : \nGREETING SECTION\n\n- Entire greeting must be in italics.\n- \"Hey Aryan\" must be bold + italics.\n- Each sentence must appear on a separate line.\n- Add one blank line between each sentence.\n\nFormat exactly like this:\n\n***Hey Aryan***\n\n*Excited to explore this weekend's networking opportunities?*\n\n*Here are the events curated for you.*\n\n--------------------------------------------------\n\nMAIN TITLE\n\n# Mumbai Networking Events\n\n(Place this as a standalone heading above the table, not inside the greeting line.)\n\n--------------------------------------------------\n\nTOP RECOMMENDATIONS SECTION\n\n- Add a bold subheading before recommendations.\n- Use single bullet points only.\n- Do NOT add bullets inside bullets.\n\nFormat:\n\n**Top Recommendations**\n\n• **MSME Startup Founder Meet Mumbai:** Description...\n\n• **Manufacturing IT Summit (MITS INDIA):** Description...\n\n• **Mumbai Startup Meetup:** Description...\n\n--------------------------------------------------\n\nCLOSING SECTION\n\n- Entire closing must be in italics.\n- Place after all recommendations.\n- Add one blank line between the two sentences.\n\nFormat exactly like this:\n\n*The best opportunities often come from conversations you never planned to have...*\n\n*Step out, meet new people, and make the most of Mumbai's networking scene this weekend!*\n\nGREETING FORMAT RULES\n\n- Each sentence MUST be on a separate line.\n- Insert a <br> tag after every sentence.\n- Do NOT place all greeting text in a single paragraph.\n- Render exactly as:\n\n***Hey Aryan***<br>\n*Excited to explore this weekend's networking opportunities?*<br>\n*Here are the events...*\n\n--------------------------------------------------\n\nCLOSING FORMAT RULES\n\n- Each sentence MUST be on a separate line.\n- Insert a <br> tag after the first sentence.\n- Do NOT combine both sentences into a single paragraph.\n- Render exactly as:\n\n*The best opportunities often come from conversations you never planned to have...*<br>\n*Step out, meet new people, and make the most of Mumbai's networking scene this weekend!*\n\nMINOR FORMATTING RULES : \n1. GREETING\n\nChange:\n\nHere are the events curated for you.\n\nTo:\n\nHere are the events curated for you.....\n\n--------------------------------------------------\n\n2. MAIN HEADING\n\nChange:\n\nMumbai Networking Events:\n\nTo a proper heading:\n\n# Mumbai Networking Events\n\n(or H1 heading in HTML)\n\nMake it noticeably larger than the table text.\n\n--------------------------------------------------\n\n3. RECOMMENDATIONS HEADING\n\nChange:\n\nTop Recommendations\n\nTo:\n\n## Top Recommendations:\n\n(or H2 heading in HTML)\n\nMake it larger than the recommendation text and add the colon (:).\nCRITICAL FORMATTING RULE:\n\nThe greeting and closing sections MUST be rendered as separate HTML paragraph elements (<p>), not as plain text.\n\nExample:\n\n<p><i><b>Hey Aryan,</b></i></p>\n\n<p><i>Excited to explore this week's networking opportunities?</i></p>\n\n<p><i>Here are the events curated for you.....</i></p>\n\nSimilarly for the closing:\n\n<p><i>The best opportunities often come from conversations you never planned to have...</i></p>\n\n<p><i>Step out, meet new people, and make the most of Mumbai's networking scene this week!</i></p>\n\nDO NOT combine these sentences into a single paragraph.\nDO NOT place them on the same line.\nEACH sentence must be wrapped in its own <p> tag.\nAlso :\n\n1. \"Mumbai Networking Events:\" must be:\n   - H1 heading\n   - Blue color\n   - Underlined\n   - End with a colon (:)\n\n2. \"Top Recommendations:\" must be:\n   - H2 heading\n   - Underlined\n   - End with a colon (:)\n\n3. Do not apply these styles to any other text.\nSearch Results:\n\n{{ JSON.stringify($json.data.web) }}\n\n\n\n\n",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        896,
+        -128
+      ],
+      "id": "44bf8c9f-313d-4571-b6c3-245b0062a6ec",
+      "name": "Gemini LLM"
+    },
+    {
+      "parameters": {
+        "sendTo": "aryank.iitb@gmail.com",
+        "subject": "Mumbai Networking Events This Weekend !",
+        "message": "={{$node[\"Gemini LLM\"].json.text}}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1248,
+        -128
+      ],
+      "id": "5faeef9f-9769-4af7-95a7-994034d95e03",
+      "name": "Gmail Sender",
+      "webhookId": "128c8e6e-0dc3-4f2a-a0f5-bc722204d2e7",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "6oMosJkJfRndex6N",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash-lite",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        976,
+        96
+      ],
+      "id": "7b6214b9-d596-4112-885b-d6d5f19afb21",
+      "name": "Gemini 2.5 Flash Lite",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "HLZ2sGNheAzMKE6D",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Scheduler": {
+      "main": [
+        [
+          {
+            "node": "Serper API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Serper API": {
+      "main": [
+        [
+          {
+            "node": "JavaScript Parser",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JavaScript Parser": {
+      "main": [
+        [
+          {
+            "node": "Firecrawl Search",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Firecrawl Search": {
+      "main": [
+        [
+          {
+            "node": "Gemini LLM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini LLM": {
+      "main": [
+        [
+          {
+            "node": "Gmail Sender",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini 2.5 Flash Lite": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Gemini LLM",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionTimeout": -1,
+    "availableInMCP": false
+  },
+  "versionId": "877da030-42b2-418c-8e9c-65350e6b5c28",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e5a36ee03533488331c8222251ea40e56f63232fc41a94cb9e0321670197c09a"
+  },
+  "id": "BhJTx99vBaYZKNTH",
+  "tags": []
+}
